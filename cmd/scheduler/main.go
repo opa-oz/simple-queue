@@ -8,6 +8,7 @@ import (
 	"github.com/opa-oz/simple-queue/pkg/config"
 	"github.com/opa-oz/simple-queue/pkg/middlewares"
 	"github.com/opa-oz/simple-queue/pkg/redis"
+	"github.com/opa-oz/simple-queue/pkg/utils"
 )
 
 func main() {
@@ -24,9 +25,30 @@ func main() {
 	r := gin.Default()
 	rdb := redis.GetClient(cfg)
 
+	errChan := make(chan error, 10)
+	go utils.LogErrors(errChan)
+
+	connection, err := redis.GetRMQConnection(rdb, errChan)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	targets, err := config.GetTargets(cfg)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	queues, err := config.PrepareQueues(connection, targets, false)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	r.Use(middlewares.RequestLogger())
 	r.Use(middlewares.ResponseLogger())
 	r.Use(middlewares.RedisMiddleware(rdb))
+	r.Use(middlewares.RMQMiddleware(queues))
 	r.Use(middlewares.CfgMiddleware(cfg))
 
 	r.GET("/healz", api.Healz)

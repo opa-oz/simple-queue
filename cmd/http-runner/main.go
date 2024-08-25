@@ -9,13 +9,11 @@ import (
 	"github.com/opa-oz/simple-queue/pkg/config"
 	"github.com/opa-oz/simple-queue/pkg/middlewares"
 	"github.com/opa-oz/simple-queue/pkg/redis"
+	"github.com/opa-oz/simple-queue/pkg/utils"
 )
 
 func main() {
 	cfg, err := config.GetConfig()
-
-	targets := make(map[string]string)
-	targets["get"] = "get"
 
 	if err != nil {
 		fmt.Println(err)
@@ -26,18 +24,39 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	r := gin.Default()
+
+	errChan := make(chan error, 10)
+	go utils.LogErrors(errChan)
 	rdb := redis.GetClient(cfg)
+
+	connection, err := redis.GetRMQConnection(rdb, errChan)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	targets, err := config.GetTargets(cfg)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	queues, err := config.PrepareQueues(connection, targets, true)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	r.Use(middlewares.RequestLogger())
 	r.Use(middlewares.ResponseLogger())
 	r.Use(middlewares.RedisMiddleware(rdb))
+	r.Use(middlewares.RMQMiddleware(queues))
 	r.Use(middlewares.CfgMiddleware(cfg))
 
 	r.GET("/healz", api.Healz)
 	r.GET("/ready", api.Ready)
 
-	for key := range targets {
-		go channels.GoToThread(rdb, key)
+	for _, queue := range *queues {
+		_, err = (*queue).AddConsumer("consumer", channels.NewConsumer())
 	}
 
 	port := fmt.Sprintf(":%d", cfg.Port+1)
@@ -46,4 +65,6 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+
+	<-(*connection).StopAllConsuming()
 }

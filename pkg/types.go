@@ -4,7 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+
+	"github.com/adjust/rmq/v5"
 )
+
+type RMQueues = map[string]*rmq.Queue
+type Targets map[string]string
 
 type QueueItem struct {
 	Header   http.Header `json:"headers"`

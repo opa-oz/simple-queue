@@ -15,13 +15,6 @@ const QueueHeader string = "X-From-Simple-Queue"
 var Yes = []string{"yes"}
 
 func ScheduleGet(c *gin.Context) {
-	rdb, err := utils.GetRedis(c)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.MessageResponse{Message: "Cannot get Redis"})
-		return
-	}
-
 	target := c.Param("target")
 
 	incomingHeaders := c.Request.Header
@@ -37,14 +30,28 @@ func ScheduleGet(c *gin.Context) {
 		Endpoint: todo.String("Replace with target map", target),
 	}
 
+	qName := utils.GetQ(target)
+
 	payload, err := item.MarshalBinary()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.MessageResponse{Message: "Cannot marshal json for the item"})
 		return
 	}
 
-	// https://dev.to/franciscomendes10866/using-redis-pub-sub-with-golang-mf9
-	err = rdb.Publish(c, utils.GetQ(target), payload).Err()
+	queues, err := utils.GetRMQ(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.MessageResponse{Message: fmt.Sprintf("Failed to get queues: %e", err)})
+		return
+	}
+
+	q, ok := (*queues)[qName]
+	if !ok {
+		c.JSON(http.StatusInternalServerError, utils.MessageResponse{Message: "No queue open"})
+		return
+	}
+
+	// https://github.com/adjust/rmq?tab=readme-ov-file
+	err = (*q).PublishBytes(payload)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.MessageResponse{Message: fmt.Sprintf("Failed to publish: %e", err)})
 		return

@@ -14,7 +14,8 @@ type Environment struct {
 		Password string `env:"REDIS_PASS,default_value="`
 		Database int    `env:"REDIS_DB,default_value=0"`
 	}
-	Extras env.EnvSet
+	ConfigFile string `env:"CONFIG_PATH"`
+	Extras     env.EnvSet
 }
 
 func GetConfig() (*Environment, error) {
