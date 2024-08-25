@@ -32,7 +32,10 @@ func main() {
 	r.GET("/healz", api.Healz)
 	r.GET("/ready", api.Ready)
 
-	// rg := r.Group("/api")
+	rg := r.Group("/simple")
+	{
+		rg.GET("/:target/*request", api.ScheduleGet)
+	}
 
 	port := fmt.Sprintf(":%d", cfg.Port)
 	err = r.Run(port)

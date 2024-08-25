@@ -12,7 +12,7 @@ const EchoCheck string = "I'm alive"
 var RedisNotWorking = errors.New("Redis is not working")
 
 func CheckRedis(c context.Context, rdb *redis.Client) error {
-	echo := rdb.Echo(c, EchoCheck)
+	echo := rdb.Ping(c)
 
 	if echo.Err() != nil {
 		return RedisNotWorking

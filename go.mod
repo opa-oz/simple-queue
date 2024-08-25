@@ -5,6 +5,7 @@ go 1.22.6
 require (
 	github.com/Netflix/go-env v0.0.1
 	github.com/gin-gonic/gin v1.10.0
+	github.com/opa-oz/go-todo v0.0.4
 	github.com/redis/go-redis/v9 v9.6.1
 )
 
