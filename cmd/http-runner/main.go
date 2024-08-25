@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/opa-oz/simple-queue/pkg/api"
-	"github.com/opa-oz/simple-queue/pkg/channels"
 	"github.com/opa-oz/simple-queue/pkg/config"
+	"github.com/opa-oz/simple-queue/pkg/consumers"
 	"github.com/opa-oz/simple-queue/pkg/middlewares"
 	"github.com/opa-oz/simple-queue/pkg/redis"
 	"github.com/opa-oz/simple-queue/pkg/utils"
@@ -56,7 +56,7 @@ func main() {
 	r.GET("/ready", api.Ready)
 
 	for _, queue := range *queues {
-		_, err = (*queue).AddConsumer("consumer", channels.NewConsumer())
+		_, err = (*queue).AddConsumer("consumer", consumers.NewHttpConsumer())
 	}
 
 	port := fmt.Sprintf(":%d", cfg.Port+1)

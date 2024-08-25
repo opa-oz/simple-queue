@@ -7,7 +7,7 @@ import (
 
 func RMQMiddleware(queues *pkg.RMQueues) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Set("RMQ", queues)
+		c.Set(pkg.SRMQ, queues)
 		c.Next()
 	}
 }

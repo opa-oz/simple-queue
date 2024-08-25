@@ -7,8 +7,6 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-const EchoCheck string = "I'm alive"
-
 var RedisNotWorking = errors.New("Redis is not working")
 
 func CheckRedis(c context.Context, rdb *redis.Client) error {

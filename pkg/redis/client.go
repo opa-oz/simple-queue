@@ -6,7 +6,6 @@ import (
 )
 
 func GetClient(cfg *config.Environment) *redis.Client {
-
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     cfg.Redis.Address,
 		Password: cfg.Redis.Password,

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/opa-oz/simple-queue/pkg"
 )
 
 // {@link https://techwasti.com/log-requests-and-responses-in-go-gin}
@@ -27,7 +28,7 @@ func RequestLogger() gin.HandlerFunc {
 
 func ResponseLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("X-Content-Type-Options", "nosniff")
+		c.Writer.Header().Set(pkg.SContentTypeOptions, pkg.SNoSniff)
 
 		c.Next()
 

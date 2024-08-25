@@ -11,7 +11,12 @@ import (
 type RMQueues = map[string]*rmq.Queue
 type Targets map[string]string
 
+type MessageResponse struct {
+	Message string `json:"message" swaggertype:"string" example:"OK"`
+}
+
 type QueueItem struct {
+	Method   string      `json:"method"`
 	Header   http.Header `json:"headers"`
 	Path     string      `json:"path"`
 	Query    url.Values  `json:"q"`

@@ -9,7 +9,7 @@ import (
 )
 
 func GetRedis(c *gin.Context) (*redis.Client, error) {
-	r := c.Value("Redis")
+	r := c.Value(pkg.SRedis)
 
 	if r == nil {
 		err := fmt.Errorf("could not retrieve Redis")
@@ -26,7 +26,7 @@ func GetRedis(c *gin.Context) (*redis.Client, error) {
 }
 
 func GetRMQ(c *gin.Context) (*pkg.RMQueues, error) {
-	r := c.Value("RMQ")
+	r := c.Value(pkg.SRMQ)
 
 	if r == nil {
 		err := fmt.Errorf("could not retrieve Redis queue")
@@ -40,4 +40,21 @@ func GetRMQ(c *gin.Context) (*pkg.RMQueues, error) {
 	}
 
 	return connection, nil
+}
+
+func GetTargets(c *gin.Context) (*pkg.Targets, error) {
+	r := c.Value(pkg.STargets)
+
+	if r == nil {
+		err := fmt.Errorf("could not retrieve Targets")
+		return nil, err
+	}
+
+	targets, ok := r.(*pkg.Targets)
+	if !ok {
+		err := fmt.Errorf("variable Targets has wrong type")
+		return nil, err
+	}
+
+	return targets, nil
 }

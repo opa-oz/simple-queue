@@ -49,6 +49,7 @@ func main() {
 	r.Use(middlewares.ResponseLogger())
 	r.Use(middlewares.RedisMiddleware(rdb))
 	r.Use(middlewares.RMQMiddleware(queues))
+	r.Use(middlewares.TargetsMiddleware(targets))
 	r.Use(middlewares.CfgMiddleware(cfg))
 
 	r.GET("/healz", api.Healz)
