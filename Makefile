@@ -17,13 +17,10 @@ scheduler: ## Run scheduler locally
 .PHONY: scheduler
 
 
-http-runner: ## Run http-runner locally
-	go run cmd/http-runner/main.go
+runner: ## Run runner locally
+	go run cmd/runner/main.go
 
 .PHONY: http-runner
-
-both: 
-	parallel make ::: scheduler http-runner
 
 redis: redis-stop ## Run Redis in Docker for local development
 	docker run --name queue-redis -p 6379:6379 -d redis
